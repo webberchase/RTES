@@ -10,6 +10,14 @@
 #define RED 0
 #define YELLOW 7
 
+// Timer constants
+#define YELLOW_PERIOD 250
+#define GREEN_PERIOD 1250
+#define TICK_PERIOD 100
+
+//#define delay250 _delay_ms(250)
+//#define delay1250 _delay_ms(1250)
+
 // Global variables. They MUST be defined using initialize_led(<COLOR>).
 IO_struct _green; 
 IO_struct _red;

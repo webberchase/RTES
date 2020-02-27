@@ -9,7 +9,7 @@
 #define INVERTED 1
 
 /******************************************************************
-   ALL INITIALIZATION
+	ALL INITIALIZATION
 ******************************************************************/
 void initialize_system(void) {
 	// initalize green and yellow only.
@@ -21,14 +21,34 @@ void initialize_system(void) {
 	// When you see this pattern of lights you know the board has reset
 	light_show();
 
-	// initalize only buttonA and buttonC because they are connected to PCINT
+	// Initalize only buttonA and buttonC because they are connected to PCINT
 	// NOTE: button C and the RED led are on the same line.
-	initialize_button(BUTTONA);
-	initialize_button(BUTTONC);
+	initialize_button(&_buttonA);
+	initialize_button(&_buttonC);
+	
+	// Enable the PCINT for buttons A and C. 
+	// This sets up for PCINT ISR. 
+	enable_pcint(&_interruptA);
+	enable_pcint(&_interruptC);
+}
+
+/* CALLBACK FUNCTIONS */
+
+uint8_t releaseA = 0;
+uint8_t releaseC = 0;
+
+// Button A
+void flagA() {
+	releaseA = 1;
+}
+
+// Button C
+void flagC() {
+	releaseC = 1;
 }
 
 /******************************************************************
-   MAIN
+	MAIN
 ******************************************************************/
 
 int main(void) {
@@ -37,56 +57,102 @@ int main(void) {
 
 	initialize_system();
 	
-	uint8_t green_on = 1;	
+	// Enables all interrupts
+	sei();	
 	
-	//******  THESE FUNCTIONS SIMPLIFY THE WHILE LOOP!  *********//
+	// Connect the buttons to the appropriate interrupt actions
+	// Release button A
+	setup_button_action(&_interruptA, 1, flagA);
+	// Release button C
+	setup_button_action(&_interruptC, 1, flagC);
 	
-	// Toggles the green led IF green_on is true 
-	// Otherwise, ensures that green led is off
-	void toggle_greenif() {
-		if (green_on) {
-			led_toggle(&_green);
-		} else {
-			led_off(&_green, INVERTED);
-		}
-	}
+	// for A and C button state machines
+	uint8_t a_state = 1;
+	uint8_t c_state = 1;
 	
-	// Checks both Button A and Button C 
-	// If there is any button press detected, this alters green_on
-	void check_buttons() {
-		// Button A turns green ON 
-		if (is_button_pressed(&_buttonA)) {
-			led_on(&_green, INVERTED);
-			green_on = 1;
+	// timer variable declarations
+	uint16_t yms_tick = 0;
+	uint16_t gms_tick = 0;
+	uint16_t yellow_timer = YELLOW_PERIOD;
+	uint8_t ytimer_expired = 0; // false
+	uint16_t green_timer = GREEN_PERIOD;
+	uint8_t gtimer_expired = 0; // false
+	
+	
+	//***********************************************************//
+	//******         THE CYCLIC CONTROL LOOP            *********//
+	//***********************************************************//
+
+	while(1) {
+		// BUTTON A SM 
+		switch (a_state) {
+			case (1):
+				if(releaseA) {
+					led_on(&_yellow, 0);
+					a_state = 2;
+					releaseA = 0;
+				}
+				break;
+			case (2):
+				if(ytimer_expired) {
+					led_toggle(&_yellow); // Toggle LED 
+					ytimer_expired = 0;   // false
+				}
+				if(releaseA) {
+					a_state = 3;
+					releaseA = 0;
+				}	
+				break;
+			case (3): 
+				if(releaseA) {
+					led_off(&_yellow, 0);
+					a_state = 1;
+					releaseA = 0;
+				}
+				break;
+		} // end A SM
+		
+		// BUTTON C SM 
+		switch (c_state) {
+			case (1):
+				if(releaseC) {
+					led_on(&_green, INVERTED);
+					c_state = 2;
+					releaseC = 0;
+				}
+				break;
+			case (2):
+				if(gtimer_expired) {
+					led_toggle(&_green); // Toggle LED 
+					gtimer_expired = 0;   // false
+				}
+				if(releaseC) {
+					c_state = 3;
+					releaseC = 0;
+				}	
+				break;
+			case (3): 
+				if(releaseC) {
+					led_off(&_green, INVERTED);
+					c_state = 1;
+					releaseC = 0;
+				}
+				break;
+		} // end C SM
+		
+		// Yellow Timer
+		if (yms_tick >= yellow_timer) {
+			ytimer_expired = 1; // true
+			yellow_timer += YELLOW_PERIOD;
 		}
-		// Button C turns green OFF
-		if (is_button_pressed(&_buttonC)) {
-			led_off(&_green,INVERTED); 
-			green_on = 0;
+		//Green Timer
+		if (gms_tick >= green_timer) {
+			gtimer_expired = 1; // true
+			green_timer += GREEN_PERIOD;
 		}
-	}
-
-	//*************************************************************//
-	//*******         THE CYCLIC CONTROL LOOP            **********//
-	//*************************************************************//
-
-	// Assume both buttons start in a not pressed state.
-
-  while(1) {
-		
-		/* 
-		NOTE: due to timing flexibility...
-		Hold down the button for one second if green does not immediately toggle. 
-		 */
-		
-		led_toggle(&_yellow);	// time = 0	
-		check_buttons();
-		toggle_greenif();
-		_delay_ms(500); 		// time = 500
-		
-		check_buttons();
-		toggle_greenif();	
-		_delay_ms(500); 		// time = 1000
+		_delay_ms(TICK_PERIOD); 
+		yms_tick += TICK_PERIOD;
+		gms_tick += TICK_PERIOD;
 		
 	} // end while(1)
 
