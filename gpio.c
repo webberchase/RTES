@@ -7,12 +7,14 @@
  */
 
 /*** GPIO LEDS : 
+ * green2	PB6
  * yellow 	PD1
  * green 	PD4
  * red 		PD2
  */
 
 /* Scope is limited to this file. Used to indicate if GPIO LED is initialized. */
+static uint8_t gGreen2Init = 0;
 static uint8_t gYellowInit = 0;
 static uint8_t gGreenInit = 0;
 static uint8_t gRedInit = 0;
@@ -24,6 +26,11 @@ void configure_gpio(IO_struct * color) {
 
 void initialize_gpio(int color) {
 	switch(color) {
+		case (GREEN2) :
+			_green2 = (IO_struct) { &DDRB, &PORTB, GREEN2, &PINB };
+			configure_gpio(&_green2);
+			gGreen2Init = 1;
+			break;
 		case (YELLOWG) :
 			_yellowg = (IO_struct) { &DDRD, &PORTD, YELLOWG, &PIND };
 			configure_gpio(&_yellowg);
@@ -67,6 +74,7 @@ void flash_gpio(IO_struct * color) {
 void light_show_gpio() {
 	int i;
 	for (i = 0; i < 2; i++) {
+		if (gGreen2Init) flash_gpio(&_green2);
 		if (gYellowInit) flash_gpio(&_yellowg);
 		if (gGreenInit) flash_gpio(&_greeng);
 		if (gRedInit) flash_gpio(&_redg);

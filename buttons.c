@@ -83,7 +83,7 @@ ISR(PCINT0_vect) {
 	 * remember that pinb_now holds state for only button A and C
 	 */
 	uint8_t stateA = pinb_now & _interruptA.mask;
-	//uint8_t stateC = pinb_now & _interruptC.mask;
+	uint8_t stateC = pinb_now & _interruptC.mask;
 	
 	if (_interruptA.enabled) {
 		// If there was a state change
@@ -100,7 +100,6 @@ ISR(PCINT0_vect) {
 		}
 	}
 	
-	/*
  	if (_interruptC.enabled) {
 		// If there was a state change
 		if (0 != (stateC ^ _interruptC.prev_state)) {
@@ -116,6 +115,5 @@ ISR(PCINT0_vect) {
 		}
 		
 	} 
-	*/
 	
 }

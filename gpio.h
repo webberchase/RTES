@@ -12,11 +12,13 @@
  */
 
 /*** GPIO LEDS : 
- * yellow 	PD1		2.0 Hz
- * green 	PD4		2.5 Hz
- * red 		PD2		1.0 Hz
+ * green2	PB6		PWM		(pin 10)
+ * yellow 	PD1		2.0 Hz	(pin 2)
+ * green 	PD4		2.5 Hz	(pin 4)
+ * red 		PD2		1.0 Hz	(pin 0)
  */
 
+#define GREEN2 6
 #define YELLOWG 1	
 #define GREENG 4
 #define REDG 2
@@ -35,6 +37,7 @@
 #define RED_PERIOD 1000
 
 // Global variables. MUST be defined using initialize_gpio(<COLOR>).
+IO_struct _green2;
 IO_struct _yellowg;
 IO_struct _greeng;
 IO_struct _redg;
