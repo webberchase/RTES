@@ -5,7 +5,7 @@ CFLAGS=-g -Wall -mcall-prologues -mmcu=$(MCU) -Os
 LDFLAGS=-Wl,-gc-sections -Wl,-relax
 CC=avr-gcc
 TARGET=main
-OBJECT_FILES=buttons.o leds.o main.o
+OBJECT_FILES=buttons.o leds.o gpio.o main.o
 
 all: $(TARGET).hex
 

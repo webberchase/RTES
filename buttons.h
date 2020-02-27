@@ -60,5 +60,4 @@ void initialize_button(IO_struct * button);
  */
 int is_button_pressed(IO_struct * button);
 
-
 #endif

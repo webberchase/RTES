@@ -8,6 +8,9 @@
 #include <avr/io.h>
 #include <inttypes.h>
 
+#define INVERTED 1
+#define RELEASE 1
+
 #define PIN0 0
 #define PIN1 1
 #define PIN2 2

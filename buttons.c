@@ -79,44 +79,43 @@ ISR(PCINT0_vect) {
 	TOGGLE_BIT(*(&_green)->port, _green.pin);
 	#endif
 
-	// ************************************************************/
-	// ***********    COMPLETE THIS PART BELOW ********************/
-	// ************************************************************/
-
-	// record which button(s) changed state from last interrupt
-	// remember that pinb_now holds state for only button A and C
+	/* Record which button(s) changed state from last interrupt
+	 * remember that pinb_now holds state for only button A and C
+	 */
 	uint8_t stateA = pinb_now & _interruptA.mask;
-	uint8_t stateC = pinb_now & _interruptC.mask;
+	//uint8_t stateC = pinb_now & _interruptC.mask;
 	
 	if (_interruptA.enabled) {
-		
-		// if there was a state change
+		// If there was a state change
 		if (0 != (stateA ^ _interruptA.prev_state)) {
-			
-			// if it was pressed, call the press_fn()
+			// If it was pressed, call the press_fn
 			if (0 != stateA) {
 				_interruptA.press_fn();
-			// else, call the release_fn()
+			// else, call the release_fn
 			} else {
 				_interruptA.release_fn();
 			}
-			// save state as prev_state
+			// Save the state as prev_state
 			_interruptA.prev_state = stateA;
 		}
 	}
 	
-	// Repeat for button C 
-	if (_interruptC.enabled) {
-		
+	/*
+ 	if (_interruptC.enabled) {
+		// If there was a state change
 		if (0 != (stateC ^ _interruptC.prev_state)) {
-			
+			// If it was pressed, call the press_fn
 			if (0 != stateC) {
 				_interruptC.press_fn();
+			// else, call the release_fn
 			} else {
 				_interruptC.release_fn();
 			}
+			// Save the state as prev_state
 			_interruptC.prev_state = stateC;
 		}
-	}
-
+		
+	} 
+	*/
+	
 }
